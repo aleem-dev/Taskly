@@ -2,6 +2,7 @@ import React from 'react'
 import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native'
 import {theme} from "../theme"
 import AntDesign from '@expo/vector-icons/AntDesign'; //delete icon
+import Entypo from '@expo/vector-icons/Entypo'; //open items
 
 type Props = {
     name: string;
@@ -27,14 +28,19 @@ export const ShoppingListItem:React.FC<Props> = ({name, isCompleted}) => {
             styles.itemContainer,
             isCompleted?styles.completedContainer:undefined
             ]}>
-            <Text style={[
-                styles.itemText,
-                isCompleted?styles.compltedText:undefined
-                ]}>{name}</Text>
+            <View style={styles.row}>
+                <Entypo
+                    name={isCompleted?"check":"circle"}
+                    size={24}
+                    color={isCompleted?theme.colorGrey:theme.colorCerulean}
+                />
+                <Text style={[
+                    styles.itemText,
+                    isCompleted?styles.compltedText:undefined
+                    ]}>{name}</Text>
+            </View>
             <TouchableOpacity 
-                style={[styles.itemButton,
-                    isCompleted?styles.completedButton:undefined
-                ]}
+                hitSlop={20}
                 onPress={handleDelete}
                 activeOpacity={0.8}
             >
@@ -61,6 +67,8 @@ const styles = StyleSheet.create({
   itemText:{
     fontSize:18,
     fontWeight:"200",
+    marginLeft:8,
+    flex:1,
   },
   itemButton:{
     backgroundColor:theme.colorWhite,
@@ -84,5 +92,10 @@ const styles = StyleSheet.create({
   },
   completedButton:{
     backgroundColor:theme.colorLightGrey,
+  },
+  row:{
+    flexDirection:'row',
+    flex:1,
+    alignItems:'center',
   }
 });
