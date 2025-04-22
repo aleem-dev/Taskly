@@ -6,8 +6,8 @@ export default function HomeScreen() {
   return(
     <View style={styles.container}>
       <ShoppingListItem name="Coffee"/>
-      <ShoppingListItem name="Snack"/>
-      <ShoppingListItem name="Book"/>
+      <ShoppingListItem name="Snack"isCompleted/>
+      <ShoppingListItem name="Book" isCompleted/>
     </View>
   )  
 }
