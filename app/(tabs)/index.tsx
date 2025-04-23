@@ -5,9 +5,9 @@ import { ShoppingListItem } from "../../components/ShoppingListItem"
 export default function HomeScreen() {
   return(
     <View style={styles.container}>
-      <ShoppingListItem name="Coffee"/>
+      {/* <ShoppingListItem name="Coffee"/>
       <ShoppingListItem name="Snack"isCompleted/>
-      <ShoppingListItem name="Book" isCompleted/>
+      <ShoppingListItem name="Book" isCompleted/> */}
     </View>
   )  
 }

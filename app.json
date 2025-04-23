@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "EApp01",
-    "slug": "EApp01",
+    "slug": "taskly",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "taskly",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
