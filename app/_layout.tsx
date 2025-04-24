@@ -43,8 +43,14 @@ export default function Layout(){
   return(
     <Stack>
       <Stack.Screen name='index' options={{title:"Shopping List"}}/>
-      <Stack.Screen name='counter' options={{title:"Counter"}}/>
-      <Stack.Screen name='idea' options={{title:"Idea"}}/>
+      <Stack.Screen name='counter' options={{title:"Counter", presentation:'modal', animation:'fade_from_bottom'}}/>
+      <Stack.Screen name='idea' options={{title:"Idea", presentation:'modal', animation:'fade_from_bottom'}}/>
     </Stack>
   )
 }
+
+//** Note: On android, the animation for the modal looks the 
+// same as the stack - the platform default. Generally it's 
+// best to stick with the UX befitting the platform, but you 
+// could experiment with changing it 
+// e.g. to animation: "fade_from_bottom". */
