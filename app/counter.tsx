@@ -7,7 +7,8 @@ export default function CounterScreen() {
     return(
         <View style={Styles.container}>
             <Text style={Styles.text}>Counter Screen</Text>
-            <TouchableOpacity
+            {/* refector as changed from stack to tabs hence removed link */}
+            {/* <TouchableOpacity
             onPress={
                 ()=> router.navigate("/idea")
             }
@@ -15,7 +16,7 @@ export default function CounterScreen() {
                 <Text style={Styles.linksStyle}>
                     Go To /idea
                 </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     )
 }
