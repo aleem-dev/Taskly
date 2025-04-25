@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native'
-import {theme} from '../theme'
+import {View, Text, StyleSheet, TouchableOpacity, Pressable} from 'react-native'
+import {theme} from '../../theme'
 import {useRouter}  from 'expo-router'
 
 export default function CounterScreen() {
@@ -35,5 +35,6 @@ const Styles = StyleSheet.create({
         textAlign:'center',
         marginBottom: 18,
         fontSize: 24,
+        color:theme.colorBlue,
     }
 })

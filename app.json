@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "EApp01",
-    "slug": "taskly",
+    "slug": "EApp01",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
