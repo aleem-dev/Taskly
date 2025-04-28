@@ -1,8 +1,7 @@
 import {useState} from 'react'
-import { StyleSheet, View, Pressable, Text,TextInput, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, FlatList, Text, View } from 'react-native';
 import {theme} from '../theme'
 import { ShoppingListItem } from "../components/ShoppingListItem"
-import {Link} from 'expo-router'
 import {initialList} from "@/constants/tempData"
 
 export default function HomeScreen() {
@@ -22,25 +21,30 @@ export default function HomeScreen() {
     }// setShoppingList([{id:new Date().toISOString() ,name:value}, ...shoppingList])
   }
   return(
-    <ScrollView 
+    <FlatList
+      ListHeaderComponent={
+        <TextInput
+          placeholder='E.g Coffee'
+          keyboardType='default'
+          style={styles.textInput}
+          onChangeText={(text)=>setValue(text)}
+          onSubmitEditing={handleSubmit}
+          returnKeyType='done'
+          value={value}
+        ></TextInput>
+      }
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       stickyHeaderIndices={[0]}
-    >
-      <TextInput
-        placeholder='Input Text'
-        keyboardType='default'
-        style={styles.textInput}
-        onChangeText={(text)=>setValue(text)}
-        onSubmitEditing={handleSubmit}
-        returnKeyType='done'
-        value={value}
-      ></TextInput>
-      {shoppingList.map((item)=>(
-          <ShoppingListItem name={item.name} key={item.id}/>
-        ))
+      data={shoppingList}
+      renderItem={({item})=><ShoppingListItem name={item.name}/>}
+      ListEmptyComponent={
+        <View style={styles.emptyList}>
+          <Text>Your shopping list is empty</Text>
+        </View>
       }
-    </ScrollView>
+    >
+    </FlatList>
   )
 }
 
@@ -67,5 +71,11 @@ const styles = StyleSheet.create({
     padding:12,
     margin:12,
     backgroundColor:theme.colorWhite, //since we use stickyHeaderIndices={[0]} we need to provide background coloer as well
+    //same applies to FlatList list header component
+  },
+  emptyList:{
+    alignItems:'center',
+    justifyContent:'center',
+    marginVertical:18
   }
  });
