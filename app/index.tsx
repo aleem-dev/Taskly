@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import { StyleSheet, View, Pressable, Text,TextInput } from 'react-native';
+import { StyleSheet, View, Pressable, Text,TextInput, ScrollView } from 'react-native';
 import {theme} from '../theme'
 import { ShoppingListItem } from "../components/ShoppingListItem"
 import {Link} from 'expo-router'
@@ -22,7 +22,11 @@ export default function HomeScreen() {
     }// setShoppingList([{id:new Date().toISOString() ,name:value}, ...shoppingList])
   }
   return(
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      stickyHeaderIndices={[0]}
+    >
       <TextInput
         placeholder='Input Text'
         keyboardType='default'
@@ -36,8 +40,8 @@ export default function HomeScreen() {
           <ShoppingListItem name={item.name} key={item.id}/>
         ))
       }
-    </View>
-  )  
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -45,6 +49,10 @@ const styles = StyleSheet.create({
     flex:1,
     backgroundColor:theme.colorWhite,
     // justifyContent:"center", //it moves item on verticle axis
+    paddingTop:12,
+  },
+  contentContainer:{
+    paddingBottom: 24,
   },
   linksStyle:{
     textAlign:'center',
@@ -58,5 +66,6 @@ const styles = StyleSheet.create({
     fontSize:18,
     padding:12,
     margin:12,
+    backgroundColor:theme.colorWhite, //since we use stickyHeaderIndices={[0]} we need to provide background coloer as well
   }
  });
