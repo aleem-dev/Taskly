@@ -1,4 +1,6 @@
 export type ShoppingListItemType = {
-    id: string;
-    name: string;
+  id: string;
+  name: string;
+  completedAtTimestamp?: number;
+  lastUpdatedTimestamp?: number;
 }

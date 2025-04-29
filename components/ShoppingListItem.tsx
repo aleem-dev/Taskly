@@ -1,5 +1,5 @@
-import React from 'react'
-import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native'
+import React, {useState} from 'react'
+import {View, Text, StyleSheet, TouchableOpacity, Alert, Pressable} from 'react-native'
 import {theme} from "../theme"
 import AntDesign from '@expo/vector-icons/AntDesign'; //delete icon
 import Entypo from '@expo/vector-icons/Entypo'; //open items
@@ -7,14 +7,17 @@ import Entypo from '@expo/vector-icons/Entypo'; //open items
 type Props = {
     name: string;
     isCompleted?: boolean;
+    onDelete?:()=>void;
+    onToggleComplete?:()=>void
 }
 
-export const ShoppingListItem:React.FC<Props> = ({name, isCompleted}) => {
-    const handleDelete = () => {
+export const ShoppingListItem:React.FC<Props> = ({name, isCompleted, onDelete,onToggleComplete}) => {
+ 
+  const handleDelete = () => {
         Alert.alert("Are you sure you want to delete this?","it will be gone for good",[
           {
             text:"Yes",
-            onPress: ()=> console.log("Ok, deleting..."),
+            onPress: ()=> onDelete(),
             style:"destructive"
           },
           {
@@ -28,7 +31,10 @@ export const ShoppingListItem:React.FC<Props> = ({name, isCompleted}) => {
             styles.itemContainer,
             isCompleted?styles.completedContainer:undefined
             ]}>
-            <View style={styles.row}>
+            <Pressable style={styles.row}
+            onPress={onToggleComplete}
+            hitSlop={20}
+            >
                 <Entypo
                     name={isCompleted?"check":"circle"}
                     size={24}
@@ -38,7 +44,7 @@ export const ShoppingListItem:React.FC<Props> = ({name, isCompleted}) => {
                     styles.itemText,
                     isCompleted?styles.compltedText:undefined
                     ]}>{name}</Text>
-            </View>
+            </Pressable>
             <TouchableOpacity 
                 hitSlop={20}
                 onPress={handleDelete}
@@ -49,7 +55,6 @@ export const ShoppingListItem:React.FC<Props> = ({name, isCompleted}) => {
                     size={24} 
                     color={isCompleted?theme.colorGrey:theme.colorRed} 
                 />
-              {/* <Text style={styles.itemButtonText}>Delete</Text> */}
             </TouchableOpacity>
           </View>
     );
@@ -75,12 +80,6 @@ const styles = StyleSheet.create({
     padding:8,
     borderRadius:6,
   },
-//   itemButtonText:{ //as the icon button is installed instead of text
-//     color:theme.colorWhite,
-//     fontWeight:'600',
-//     textTransform:"uppercase",
-//     letterSpacing:1,
-//   },
   completedContainer:{
     backgroundColor:theme.colorLightGrey,
     borderBottomColor:theme.colorLightGrey,
@@ -89,9 +88,6 @@ const styles = StyleSheet.create({
     color:theme.colorGrey,
     textDecorationLine:'line-through',
     textDecorationColor:theme.colorGrey,
-  },
-  completedButton:{
-    backgroundColor:theme.colorLightGrey,
   },
   row:{
     flexDirection:'row',
