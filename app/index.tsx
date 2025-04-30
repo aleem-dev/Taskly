@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import { StyleSheet, TextInput, FlatList, Text, View } from 'react-native';
+import { StyleSheet, TextInput, FlatList, Text, View, LayoutAnimation } from 'react-native';
 import {theme} from '../theme'
 import { ShoppingListItem } from "../components/ShoppingListItem"
 import {initialList} from "@/constants/tempData"
@@ -34,6 +34,7 @@ export default function HomeScreen() {
         },
         ...shoppingList
       ]//here we using rest operator to mearge two arrays, we can use it in begining or end
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       setShoppingList(newShoppingList);
       saveToStorage(storageKey, newShoppingList)
       setValue("");
@@ -43,6 +44,7 @@ export default function HomeScreen() {
   const handleDelete = (id:string):void => {
     console.log(`deleted item id: ${id}`)
     const newShoppingList = shoppingList.filter((item)=> item.id!=id)
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setShoppingList(newShoppingList);
     saveToStorage(storageKey, newShoppingList)
   }
@@ -61,6 +63,7 @@ export default function HomeScreen() {
         return item
       }
     })
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setShoppingList(newShoppingList)
     saveToStorage(storageKey, newShoppingList)
   }
