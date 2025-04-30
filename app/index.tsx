@@ -1,15 +1,28 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import { StyleSheet, TextInput, FlatList, Text, View } from 'react-native';
 import {theme} from '../theme'
 import { ShoppingListItem } from "../components/ShoppingListItem"
 import {initialList} from "@/constants/tempData"
 import { ShoppingListItemType } from '@/constants/projTypes';
+import {getFromStorage, saveToStorage} from '@/utils/storage'
 
-
+const storageKey = "shopping-list"
 
 export default function HomeScreen() {
   const [shoppingList,setShoppingList] = useState(initialList)
   const [value, setValue] = useState("")
+
+  //load data
+  useEffect(()=>{
+    const fetchInitial = async () => {
+      const data = await getFromStorage(storageKey);
+      if(data){
+        setShoppingList(data)
+      }
+    };
+    fetchInitial();
+  }, []);
+
   // user input a shopping list item
   const handleSubmit = () => {
     if (value){
@@ -22,6 +35,7 @@ export default function HomeScreen() {
         ...shoppingList
       ]//here we using rest operator to mearge two arrays, we can use it in begining or end
       setShoppingList(newShoppingList);
+      saveToStorage(storageKey, newShoppingList)
       setValue("");
     }// setShoppingList([{id:new Date().toISOString() ,name:value}, ...shoppingList])
   }
@@ -30,6 +44,7 @@ export default function HomeScreen() {
     console.log(`deleted item id: ${id}`)
     const newShoppingList = shoppingList.filter((item)=> item.id!=id)
     setShoppingList(newShoppingList);
+    saveToStorage(storageKey, newShoppingList)
   }
   // user complete shopping list item
   const handleToggleComplete = (id:string):void => {
@@ -38,22 +53,17 @@ export default function HomeScreen() {
       if (item.id === id){
         return {...item,
           completedAtTimestamp: item.completedAtTimestamp
-            ?undefined
-            :Date.now(),
-            lastUpdatedTimestamp: Date.now(),
+          ?undefined
+          :Date.now(),
+          lastUpdatedTimestamp: Date.now(),
         } //return an object
       } else {
         return item
       }
     })
     setShoppingList(newShoppingList)
+    saveToStorage(storageKey, newShoppingList)
   }
-
-  //** Order by
-  // display the incomplet item first
-  // when a new item is added, it gets put at the top of the incompete pile
-  // when it is marked as done, it goes to the top of the complete pile
-  // when a previously completed item is marked incompleted, it goes back to the top of incompleted pile */
   return(
     <FlatList
     ListHeaderComponent={
@@ -88,6 +98,11 @@ export default function HomeScreen() {
     </FlatList>
   )
 }
+//** Order by
+// display the incomplet item first
+// when a new item is added, it gets put at the top of the incompete pile
+// when it is marked as done, it goes to the top of the complete pile
+// when a previously completed item is marked incompleted, it goes back to the top of incompleted pile */
 const orderShoppingList = (shoppingList:ShoppingListItemType[]) => {
   return shoppingList.sort((item1,item2)=>{
     
@@ -107,6 +122,7 @@ const orderShoppingList = (shoppingList:ShoppingListItemType[]) => {
     }
   )
 }
+
 
 const styles = StyleSheet.create({
   container:{
@@ -139,3 +155,12 @@ const styles = StyleSheet.create({
     marginVertical:18
   }
  });
+
+
+ // data persistant app
+ // need to store the shopping list in the local storage
+    //When new item is created - handleSubmit
+    //When task marked complete or incomplete - toggleComplete
+    //When task is deleted - handleDelete
+// read from the local storage
+    //When rendering the list to app using FlatList - index.tsx
