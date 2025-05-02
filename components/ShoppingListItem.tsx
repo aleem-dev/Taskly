@@ -15,6 +15,7 @@ type Props = {
 export const ShoppingListItem:React.FC<Props> = ({name, isCompleted, onDelete,onToggleComplete}) => {
  
   const handleDelete = () => {
+    // TODO:app crashes when below line of code is uncommented
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);    
     Alert.alert("Are you sure you want to delete this?","it will be gone for good",[
           {

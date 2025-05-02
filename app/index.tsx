@@ -46,6 +46,7 @@ export default function HomeScreen() {
     console.log(`deleted item id: ${id}`)
     const newShoppingList = shoppingList.filter((item)=> item.id!=id)
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    // TODO: app crashes when below line uncommmented
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     setShoppingList(newShoppingList);
     saveToStorage(storageKey, newShoppingList)
