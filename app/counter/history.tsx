@@ -4,6 +4,7 @@ export default function HistoryScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>History</Text>
+      <Text>Updates regarding task completion</Text>
     </View>
   );
 }

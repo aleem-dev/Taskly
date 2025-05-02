@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import { StyleSheet, TextInput, FlatList, Text, View, LayoutAnimation } from 'react-native';
 import {theme} from '../theme'
-import { ShoppingListItem } from "../components/ShoppingListItem"
+import { ShoppingListItem } from "@/components"
 import {initialList} from "@/constants/tempData"
 import { ShoppingListItemType } from '@/constants/projTypes';
 import {getFromStorage, saveToStorage} from '@/utils/storage';
