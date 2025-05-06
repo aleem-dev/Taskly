@@ -1,4 +1,4 @@
-import TimeSegment from "./TimerSegment";
+import {TimeSegment} from "./TimeSegment";
 import { ShoppingListItem } from "./ShoppingListItem";
 
 export {TimeSegment}
