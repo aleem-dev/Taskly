@@ -7,6 +7,7 @@ import { withLayoutContext } from 'expo-router';
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 import {Tabs} from 'expo-router' // comment this as we are going to cretae our Tab
 // import {Tabs} from '@/components/bottom-tabs'
+import { ShoppingListProvider } from './context/ShoppingListContext';
 
 export default function Layout(){
   // const Tabs = withLayoutContext(
@@ -19,7 +20,7 @@ export default function Layout(){
     //   <Stack.Screen name='counter' options={{title:"Counter", presentation:'modal', animation:'fade_from_bottom'}}/>
     //   <Stack.Screen name='idea' options={{title:"Idea", presentation:'modal', animation:'fade_from_bottom'}}/>
     // </Stack>
-    
+    <ShoppingListProvider>
     <Tabs>
       <Tabs.Screen 
         name='index' 
@@ -57,6 +58,7 @@ export default function Layout(){
           // })
           }}/>
     </Tabs>
+    </ShoppingListProvider>
   )
 }
 

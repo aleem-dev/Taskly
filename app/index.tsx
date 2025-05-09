@@ -6,13 +6,21 @@ import {initialList} from "@/constants/tempData"
 import { ShoppingListItemType } from '@/constants/projTypes';
 import {getFromStorage, saveToStorage} from '@/utils/storage';
 import * as Haptics from 'expo-haptics'
+import { useContext } from 'react';
+import { ShoppingListContext } from './context/ShoppingListContext';
+import * as Notifications from "expo-notifications"
+import { Platform } from 'react-native';
 
-const storageKey = "shopping-list"
+export const storageKey = "shopping-list"
+
 
 export default function HomeScreen() {
-  const [shoppingList,setShoppingList] = useState(initialList)
+  const { shoppingList, updateShoppingList } = useContext(ShoppingListContext);
+  // const [shoppingList,setShoppingList] = useState(initialList)
   const [value, setValue] = useState("")
 
+
+  
   //load data
   useEffect(()=>{
     const fetchInitial = async () => {
@@ -26,55 +34,91 @@ export default function HomeScreen() {
 
   // user input a shopping list item
   const handleSubmit = () => {
-    if (value){
-      const newShoppingList = [
-        {
-          id: new Date().toISOString(),
-          name:value,
-          lastUpdatedTimestamp: Date.now()
-        },
-        ...shoppingList
-      ]//here we using rest operator to mearge two arrays, we can use it in begining or end
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-      setShoppingList(newShoppingList);
-      saveToStorage(storageKey, newShoppingList)
-      setValue("");
-    }// setShoppingList([{id:new Date().toISOString() ,name:value}, ...shoppingList])
-  }
+  if (!value.trim()) return; // Prevent empty submissions
+
+  const newItem: ShoppingListItemType = {
+    id: new Date().toISOString(),
+    name: value.trim(), // Ensure no extra spaces
+    createdAtTimestamp: Date.now(),
+    lastUpdatedTimestamp: Date.now(),
+    eventType: "created",
+  };
+
+  // Update shopping list through context
+  const updatedList = [newItem, ...shoppingList];
+
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  updateShoppingList(updatedList); //  Use context to update globally
+
+  setValue(""); // Clear input field
+};
+
+
   // user deletes shopping list item
-  const handleDelete = (id:string):void => {
-    console.log(`deleted item id: ${id}`)
-    const newShoppingList = shoppingList.filter((item)=> item.id!=id)
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    // TODO: app crashes when below line uncommmented
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    setShoppingList(newShoppingList);
-    saveToStorage(storageKey, newShoppingList)
-  }
+  // const handleDelete = async (id:string):void => {
+  //   console.log(`deleted item id: ${id}`)
+  //   const deletedItem = shoppingList.find((item) => item.id === id);
+  //   const newShoppingList = shoppingList.filter((item)=> item.id!=id)
+  //   if(deletedItem){
+  //     deletedItem.deletedAtTimestamp = Date.now();
+  //     deletedItem.eventType = "deleted";
+  //     const historyData = await getFromStorage("history") ?? [];
+  //     await saveToStorage("history", [...historyData, deletedItem])
+  //   }
+  //   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+  //   // TODO: app crashes when below line uncommmented
+  //   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+  //   setShoppingList(newShoppingList);
+  //   saveToStorage(storageKey, newShoppingList)
+  // }
+  const handleDelete = (id: string): void => {
+  console.log(`Deleted item id: ${id}`);
+
+  const newShoppingList:ShoppingListItemType[] = shoppingList.map((item) => 
+    item.id === id 
+      ? { ...item, deletedAtTimestamp: Date.now(), eventType: "deleted" } // Mark as deleted
+      : item
+  );
+
+  // setShoppingList(newShoppingList);
+  updateShoppingList(newShoppingList); //using context
+  saveToStorage(storageKey, newShoppingList); // Everything stays in one key
+};
+
   // user complete shopping list item
-  const handleToggleComplete = (id:string):void => {
-    console.log(`compelted the item: ${id} at ${Date.now()}`)
-    const newShoppingList = shoppingList.map((item)=>{
-      if (item.id === id){
-        if(item.completedAtTimestamp){
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-        }else{
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        }
-        return {...item,
-          completedAtTimestamp: item.completedAtTimestamp
-          ?undefined
-          :Date.now(),
-          lastUpdatedTimestamp: Date.now(),
-        } //return an object
+ const handleToggleComplete = (id: string): void => {
+  console.log(`Toggled task completion: ${id} at ${Date.now()}`);
+
+  const newShoppingList: ShoppingListItemType[] = shoppingList.map((item) => {
+    if (item.id === id) {
+      // Trigger haptic feedback based on action
+      if (item.completedAtTimestamp) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Marking as incomplete
       } else {
-        return item
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); // Marking as completed
       }
-    })
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setShoppingList(newShoppingList)
-    saveToStorage(storageKey, newShoppingList)
-  }
+
+      return {
+        ...item,
+        completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now(), // Toggle completion timestamp
+        lastUpdatedTimestamp: Date.now(),
+        eventType: item.completedAtTimestamp ? "incomplete" : "completed",
+        historyTimestamp: item.historyTimestamp ?? Date.now(), // Preserve meaningful timestamp history
+      };
+    } else {
+      return item;
+    }
+  });
+
+  // Smooth animation effect
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+  // Update state and persist changes
+  // setShoppingList(newShoppingList);
+  updateShoppingList(newShoppingList); //using context
+  saveToStorage(storageKey, newShoppingList);
+};
+
   return(
     <FlatList
     ListHeaderComponent={
@@ -115,7 +159,8 @@ export default function HomeScreen() {
 // when it is marked as done, it goes to the top of the complete pile
 // when a previously completed item is marked incompleted, it goes back to the top of incompleted pile */
 const orderShoppingList = (shoppingList:ShoppingListItemType[]) => {
-  return shoppingList.sort((item1,item2)=>{
+  const filteredShoppingList = shoppingList.filter(item => item.eventType !== "deleted")
+  return filteredShoppingList.sort((item1,item2)=>{
     
       if(item1.completedAtTimestamp && item2.completedAtTimestamp){
         return item2.completedAtTimestamp - item1.completedAtTimestamp
