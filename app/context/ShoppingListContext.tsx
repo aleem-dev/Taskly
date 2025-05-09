@@ -25,3 +25,4 @@ export const ShoppingListProvider = ({children}) => {
         </ShoppingListContext.Provider>
     )
 }
+export default ShoppingListProvider

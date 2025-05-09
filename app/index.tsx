@@ -7,7 +7,7 @@ import { ShoppingListItemType } from '@/constants/projTypes';
 import {getFromStorage, saveToStorage} from '@/utils/storage';
 import * as Haptics from 'expo-haptics'
 import { useContext } from 'react';
-import { ShoppingListContext } from './context/ShoppingListContext';
+import { ShoppingListContext } from '@/app/context/ShoppingListContext';
 import * as Notifications from "expo-notifications"
 import { Platform } from 'react-native';
 
@@ -19,7 +19,21 @@ export default function HomeScreen() {
   // const [shoppingList,setShoppingList] = useState(initialList)
   const [value, setValue] = useState("")
 
+  //use notificaitons
+  useEffect(() => {
+    async function registerForPushNotifications() {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Permission not granted for notifications");
+        return;
+      }
 
+      const token = await Notifications.getExpoPushTokenAsync();
+      console.log("Push Notification Token:", token);
+    }
+
+    registerForPushNotifications();
+  }, []);
   
   //load data
   useEffect(()=>{
@@ -33,7 +47,7 @@ export default function HomeScreen() {
   }, []);
 
   // user input a shopping list item
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
   if (!value.trim()) return; // Prevent empty submissions
 
   const newItem: ShoppingListItemType = {
@@ -49,6 +63,15 @@ export default function HomeScreen() {
 
   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   updateShoppingList(updatedList); //  Use context to update globally
+
+  // Schedule notification 1 hour from now
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Task Reminder",
+        body: `Don't forget: ${newItem.name}`,
+      },
+      trigger: { seconds: 3600 }, // 1 hour delay
+    });
 
   setValue(""); // Clear input field
 };
@@ -76,7 +99,7 @@ export default function HomeScreen() {
 
   const newShoppingList:ShoppingListItemType[] = shoppingList.map((item) => 
     item.id === id 
-      ? { ...item, deletedAtTimestamp: Date.now(), eventType: "deleted" } // Mark as deleted
+      ? { ...item, deletedAtTimestamp: Date.now(), lastUpdatedTimestamp:Date.now(), eventType: "deleted" } // Mark as deleted
       : item
   );
 
@@ -86,7 +109,7 @@ export default function HomeScreen() {
 };
 
   // user complete shopping list item
- const handleToggleComplete = (id: string): void => {
+ const handleToggleComplete = async (id: string): void => {
   console.log(`Toggled task completion: ${id} at ${Date.now()}`);
 
   const newShoppingList: ShoppingListItemType[] = shoppingList.map((item) => {
@@ -104,6 +127,7 @@ export default function HomeScreen() {
         lastUpdatedTimestamp: Date.now(),
         eventType: item.completedAtTimestamp ? "incomplete" : "completed",
         historyTimestamp: item.historyTimestamp ?? Date.now(), // Preserve meaningful timestamp history
+        // buff: `Home Screen string `,
       };
     } else {
       return item;
@@ -117,6 +141,13 @@ export default function HomeScreen() {
   // setShoppingList(newShoppingList);
   updateShoppingList(newShoppingList); //using context
   saveToStorage(storageKey, newShoppingList);
+  // Cancel notification if task is completed
+  const task = newShoppingList.find((item) => item.id === id);
+  if (task?.completedAtTimestamp) {
+    await Notifications.dismissAllNotificationsAsync(); // Cancels all notifications (simplified)
+    // OR, if using specific scheduled notifications, cancel by ID:
+    // await Notifications.cancelScheduledNotificationAsync(task.notificationId);
+  }
 };
 
   return(

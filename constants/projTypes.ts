@@ -5,5 +5,6 @@ export type ShoppingListItemType = {
   completedAtTimestamp?: number;
   deletedAtTimestamp?: number;
   lastUpdatedTimestamp?: number;
-  eventType: "created" | "completed" | "deleted" | "incomplete" | "overdue"
+  eventType: "created" | "completed" | "deleted" | "incomplete" | "overdue",
+  buff?: string
 }

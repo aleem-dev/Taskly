@@ -295,179 +295,319 @@
 // refectored the whole code
 
 
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
-import { theme } from '../../theme';
-import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
-import * as Notifications from 'expo-notifications';
-import { useState, useEffect, useRef } from 'react';
-import { differenceInSeconds, isBefore } from 'date-fns';
-import { TimeSegment } from '@/components';
-import { getFromStorage, saveToStorage } from '@/utils/storage';
-import * as Haptics from 'expo-haptics';
-import ConfettiCannon from 'react-native-confetti-cannon';
+// import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
+// import { theme } from '../../theme';
+// import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
+// import * as Notifications from 'expo-notifications';
+// import { useState, useEffect, useRef } from 'react';
+// import { differenceInSeconds, isBefore } from 'date-fns';
+// import { TimeSegment } from '@/components';
+// import { getFromStorage, saveToStorage } from '@/utils/storage';
+// import * as Haptics from 'expo-haptics';
+// import ConfettiCannon from 'react-native-confetti-cannon';
 
-// Constants for countdown duration
-// const frequency = 14 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
-const frequency = 1 * 1 * 1 * 60 * 1000; // 1 minute in milliseconds
-export const countdownStorageKey = "taskly-countdown";
+// // Constants for countdown duration
+// // const frequency = 14 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
+// const frequency = 1 * 1 * 1 * 60 * 1000; // 1 minute in milliseconds
+// export const countdownStorageKey = "taskly-countdown";
 
-// Countdown state type
-export type PersistedCountdownState = {
-    currentNotificationId: string | undefined;
-    completedAtTimestamps: number[];
-};
+// // Countdown state type
+// export type PersistedCountdownState = {
+//     currentNotificationId: string | undefined;
+//     completedAtTimestamps: number[];
+// };
 
-// Countdown status type
-type CountdownStatus = {
-    isOverdue: boolean;
-    distance: { days: number, hours: number, minutes: number, seconds: number };
-};
+// // Countdown status type
+// type CountdownStatus = {
+//     isOverdue: boolean;
+//     distance: { days: number, hours: number, minutes: number, seconds: number };
+// };
 
-// Push notification settings
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-    }),
-});
+// // Push notification settings
+// Notifications.setNotificationHandler({
+//     handleNotification: async () => ({
+//         shouldShowAlert: true,
+//         shouldPlaySound: true,
+//         shouldSetBadge: false,
+//     }),
+// });
+
+// export default function CounterScreen() {
+//     const confettiRef = useRef<any>();
+
+//     // State for countdown and display status
+//     const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
+//     const [status, setStatus] = useState<CountdownStatus>({
+//         isOverdue: false,
+//         distance: { days: 0, hours: 0, minutes: 0, seconds: 0 }
+//     });
+
+//     // Load stored countdown data
+//     useEffect(() => {
+//         const init = async () => {
+//             const value = await getFromStorage(countdownStorageKey);
+//             if (value) setCountdownState(value);
+//         };
+//         init();
+//     }, []);
+
+//     const lastCompletedAt = countdownState?.completedAtTimestamps[0];
+
+//     // Countdown timer logic
+//     useEffect(() => {
+//         if (!lastCompletedAt) return;
+
+//         const intervalId = setInterval(() => {
+//             const timestamp = lastCompletedAt + frequency;
+//             const isOverdue = isBefore(timestamp, Date.now());
+
+//             // Calculate remaining time in seconds
+//             const totalSecondsRemaining = isOverdue
+//                 ? Math.max(0, (Date.now() - timestamp) / 1000)
+//                 : Math.max(0, (timestamp - Date.now()) / 1000);
+
+//             // Convert total seconds into days, hours, minutes, seconds
+//             const safeDistance = {
+//                 days: Math.floor(totalSecondsRemaining / (24 * 60 * 60)),
+//                 hours: Math.floor((totalSecondsRemaining % (24 * 60 * 60)) / (60 * 60)),
+//                 minutes: Math.floor((totalSecondsRemaining % (60 * 60)) / 60),
+//                 seconds: Math.floor(totalSecondsRemaining % 60),
+//             };
+
+//             // Update state only when values actually change
+//             setStatus(prev => (
+//                 JSON.stringify(prev.distance) !== JSON.stringify(safeDistance)
+//                     ? { isOverdue, distance: safeDistance }
+//                     : prev
+//             ));
+//         }, 1000);
+
+//         return () => clearInterval(intervalId);
+//     }, [lastCompletedAt]);
+
+//     // Schedule push notification
+//     const scheduleNotification = async () => {
+//         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+//         let pushNotificationId;
+
+//         const result = await registerForPushNotificationsAsync();
+//         if (result === "granted") {
+//             pushNotificationId = await Notifications.scheduleNotificationAsync({
+//                 content: { title: "Reminder: Your car wash is due soon!" },
+//                 trigger: { seconds: frequency / 1000 },
+//             });
+
+//             // Cancel previous notification if one exists
+//             if (countdownState?.currentNotificationId) {
+//                 await Notifications.cancelScheduledNotificationAsync(countdownState.currentNotificationId);
+//             }
+
+//             // Store updated countdown state only if timestamps changed
+//             const newTimestamps = [Date.now(), ...(countdownState?.completedAtTimestamps || [])];
+//             if (JSON.stringify(newTimestamps) !== JSON.stringify(countdownState?.completedAtTimestamps)) {
+//                 const newState = {
+//                     currentNotificationId: pushNotificationId,
+//                     completedAtTimestamps: newTimestamps,
+//                 };
+//                 setCountdownState(newState);
+//                 await saveToStorage(countdownStorageKey, newState);
+//             }
+//         } else {
+//             Alert.alert("Enable notifications permission for Expo Go in settings.");
+//         }
+//     };
+
+//     // Handle car wash button press (fires confetti)
+//     const [showConfetti, setShowConfetti] = useState(false);
+
+//     const handleWashCar = () => {
+//         scheduleNotification();
+//         setShowConfetti(true);
+//         setTimeout(() => setShowConfetti(false), 2000); // Auto-hide confetti after 2 seconds
+//     };
+
+//     // UI rendering
+//     return (
+//         <View style={styles.container}>
+//             <View style={[styles.container, status.isOverdue ? styles.containerLate : undefined]}>
+//                 <Text style={[styles.heading, status.isOverdue ? styles.whiteText : undefined]}>
+//                     {status.isOverdue ? "Your car wash is overdue!" : "Next car wash due in"}
+//                 </Text>
+
+//                 <View style={styles.row}>
+//                     <TimeSegment unit="Days" number={status.distance.days} textStyle={status.isOverdue ? styles.whiteText : undefined} />
+//                     <TimeSegment unit="Hours" number={status.distance.hours} textStyle={status.isOverdue ? styles.whiteText : undefined} />
+//                     <TimeSegment unit="Minutes" number={status.distance.minutes} textStyle={status.isOverdue ? styles.whiteText : undefined} />
+//                     <TimeSegment unit="Seconds" number={status.distance.seconds} textStyle={status.isOverdue ? styles.whiteText : undefined} />
+//                 </View>
+//             </View>
+
+//             {/* Button to schedule a push notification */}
+//             <TouchableOpacity onPress={scheduleNotification} style={styles.button} activeOpacity={0.8}>
+//                 <Text style={styles.buttonText}>Remind Me Later</Text>
+//             </TouchableOpacity>
+
+//             {/* Button to confirm task completion */}
+//             <TouchableOpacity onPress={handleWashCar} style={styles.buttonComplete} activeOpacity={0.8}>
+//                 <Text style={styles.buttonText}>I've Just Washed My Car!</Text>
+//             </TouchableOpacity>
+
+//             {showConfetti && (
+//                 <ConfettiCannon count={50} origin={{ x: Dimensions.get("window").width / 2, y: -30 }} fadeOut={true} />
+//             )}
+//         </View>
+//     );
+// }
+
+// // Styles
+// const styles = StyleSheet.create({
+//     container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colorWhite, gap:10 },
+//     text: { fontSize: 24 },
+//     button: { backgroundColor: theme.colorBlack, padding: 12, borderRadius: 6 },
+//     buttonComplete: { backgroundColor: theme.colorGreen, padding: 12, borderRadius: 6 },
+//     buttonText: { color: "#fff", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1 },
+//     row: { flexDirection: 'row', marginBottom: 24 },
+//     heading: { fontSize: 24, fontWeight: "600", marginBottom: 24, color: theme.colorBlack },
+//     containerLate: { backgroundColor: theme.colorRed },
+//     whiteText: { color: theme.colorWhite },
+// });
+import { useContext, useEffect, useState } from "react";
+import { FlatList, View, Text, TouchableOpacity, StyleSheet, LayoutAnimation } from "react-native";
+import { differenceInSeconds, isBefore } from "date-fns";
+import * as Haptics from "expo-haptics";
+import { theme } from "@/theme";
+import { ShoppingListContext } from "@/app/context/ShoppingListContext";
+
+// Constants
+const COUNTDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export default function CounterScreen() {
-    const confettiRef = useRef<any>();
+  const { shoppingList, updateShoppingList } = useContext(ShoppingListContext);
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const [taskTimers, setTaskTimers] = useState({});
 
-    // State for countdown and display status
-    const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
-    const [status, setStatus] = useState<CountdownStatus>({
-        isOverdue: false,
-        distance: { days: 0, hours: 0, minutes: 0, seconds: 0 }
-    });
-
-    // Load stored countdown data
-    useEffect(() => {
-        const init = async () => {
-            const value = await getFromStorage(countdownStorageKey);
-            if (value) setCountdownState(value);
-        };
-        init();
-    }, []);
-
-    const lastCompletedAt = countdownState?.completedAtTimestamps[0];
-
-    // Countdown timer logic
-    useEffect(() => {
-        if (!lastCompletedAt) return;
-
-        const intervalId = setInterval(() => {
-            const timestamp = lastCompletedAt + frequency;
-            const isOverdue = isBefore(timestamp, Date.now());
-
-            // Calculate remaining time in seconds
-            const totalSecondsRemaining = isOverdue
-                ? Math.max(0, (Date.now() - timestamp) / 1000)
-                : Math.max(0, (timestamp - Date.now()) / 1000);
-
-            // Convert total seconds into days, hours, minutes, seconds
-            const safeDistance = {
-                days: Math.floor(totalSecondsRemaining / (24 * 60 * 60)),
-                hours: Math.floor((totalSecondsRemaining % (24 * 60 * 60)) / (60 * 60)),
-                minutes: Math.floor((totalSecondsRemaining % (60 * 60)) / 60),
-                seconds: Math.floor(totalSecondsRemaining % 60),
-            };
-
-            // Update state only when values actually change
-            setStatus(prev => (
-                JSON.stringify(prev.distance) !== JSON.stringify(safeDistance)
-                    ? { isOverdue, distance: safeDistance }
-                    : prev
-            ));
-        }, 1000);
-
-        return () => clearInterval(intervalId);
-    }, [lastCompletedAt]);
-
-    // Schedule push notification
-    const scheduleNotification = async () => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        let pushNotificationId;
-
-        const result = await registerForPushNotificationsAsync();
-        if (result === "granted") {
-            pushNotificationId = await Notifications.scheduleNotificationAsync({
-                content: { title: "Reminder: Your car wash is due soon!" },
-                trigger: { seconds: frequency / 1000 },
-            });
-
-            // Cancel previous notification if one exists
-            if (countdownState?.currentNotificationId) {
-                await Notifications.cancelScheduledNotificationAsync(countdownState.currentNotificationId);
-            }
-
-            // Store updated countdown state only if timestamps changed
-            const newTimestamps = [Date.now(), ...(countdownState?.completedAtTimestamps || [])];
-            if (JSON.stringify(newTimestamps) !== JSON.stringify(countdownState?.completedAtTimestamps)) {
-                const newState = {
-                    currentNotificationId: pushNotificationId,
-                    completedAtTimestamps: newTimestamps,
-                };
-                setCountdownState(newState);
-                await saveToStorage(countdownStorageKey, newState);
-            }
-        } else {
-            Alert.alert("Enable notifications permission for Expo Go in settings.");
-        }
-    };
-
-    // Handle car wash button press (fires confetti)
-    const [showConfetti, setShowConfetti] = useState(false);
-
-    const handleWashCar = () => {
-        scheduleNotification();
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 2000); // Auto-hide confetti after 2 seconds
-    };
-
-    // UI rendering
-    return (
-        <View style={styles.container}>
-            <View style={[styles.container, status.isOverdue ? styles.containerLate : undefined]}>
-                <Text style={[styles.heading, status.isOverdue ? styles.whiteText : undefined]}>
-                    {status.isOverdue ? "Your car wash is overdue!" : "Next car wash due in"}
-                </Text>
-
-                <View style={styles.row}>
-                    <TimeSegment unit="Days" number={status.distance.days} textStyle={status.isOverdue ? styles.whiteText : undefined} />
-                    <TimeSegment unit="Hours" number={status.distance.hours} textStyle={status.isOverdue ? styles.whiteText : undefined} />
-                    <TimeSegment unit="Minutes" number={status.distance.minutes} textStyle={status.isOverdue ? styles.whiteText : undefined} />
-                    <TimeSegment unit="Seconds" number={status.distance.seconds} textStyle={status.isOverdue ? styles.whiteText : undefined} />
-                </View>
-            </View>
-
-            {/* Button to schedule a push notification */}
-            <TouchableOpacity onPress={scheduleNotification} style={styles.button} activeOpacity={0.8}>
-                <Text style={styles.buttonText}>Remind Me Later</Text>
-            </TouchableOpacity>
-
-            {/* Button to confirm task completion */}
-            <TouchableOpacity onPress={handleWashCar} style={styles.buttonComplete} activeOpacity={0.8}>
-                <Text style={styles.buttonText}>I've Just Washed My Car!</Text>
-            </TouchableOpacity>
-
-            {showConfetti && (
-                <ConfettiCannon count={50} origin={{ x: Dimensions.get("window").width / 2, y: -30 }} fadeOut={true} />
-            )}
-        </View>
+  // Dynamically filter tasks (removes deleted & completed)
+  useEffect(() => {
+    const newIncompleteTasks = shoppingList.filter(
+      (task) => task.eventType !== "deleted" && task.eventType !== "completed"
     );
+    setFilteredTasks(newIncompleteTasks);
+  }, [shoppingList]);
+
+  // Manage countdown timers safely
+  useEffect(() => {
+    if (filteredTasks.length === 0) return; // Prevent errors when tasks are empty
+
+    const interval = setInterval(() => {
+      const updatedTimers = {};
+      filteredTasks.forEach((task) => {
+        if (!task) return; // Prevent crashes if item doesn't exist
+
+        const deadline = task.createdAtTimestamp + COUNTDOWN_DURATION;
+        const isOverdue = isBefore(deadline, Date.now());
+        const remainingSeconds = isOverdue
+          ? differenceInSeconds(Date.now(), deadline)
+          : differenceInSeconds(deadline, Date.now());
+
+        updatedTimers[task.id] = formatTime(remainingSeconds, isOverdue);
+      });
+
+      setTaskTimers(updatedTimers);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [filteredTasks]);
+
+  // Format countdown into `days:hours:minutes:seconds`
+  const formatTime = (totalSeconds, isOverdue) => {
+    const days = Math.floor(totalSeconds / (24 * 60 * 60));
+    const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+
+    return isOverdue
+      ? `Overdue by ${days}d ${hours}h ${minutes}m ${seconds}s`
+      : `Time left: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  // Mark task as complete **without crashing**
+ const handleCompleteTask = (id) => {
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+  // Create updated task list with eventType set to "completed"
+  const updatedTasks = shoppingList.map((item) =>{
+    // item.id === id
+    //   ? { ...task, completedAtTimestamp: Date.now(), lastUpdatedTimestamp:Date.now(),eventType: "completed" }
+    //   : task
+    if (item.id === id) {
+          // Trigger haptic feedback based on action
+          if (item.completedAtTimestamp) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Marking as incomplete
+          } else {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); // Marking as completed
+          }
+    
+          return {
+            ...item,
+            completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now(), // Toggle completion timestamp
+            lastUpdatedTimestamp: Date.now(),
+            eventType: item.completedAtTimestamp ? "incomplete" : "completed",
+            historyTimestamp: item.historyTimestamp ?? Date.now(), // Preserve meaningful timestamp history
+            // buff: `Counter Screen string `
+          };
+        } else {
+          return item;
+        }
+  });
+
+  // ✅ Ensure filtered task list updates BEFORE UI renders
+  const newFilteredTasks = updatedTasks.filter((item) => item.eventType !== "completed");
+
+  // ✅ Smooth animation effect
+  setTimeout(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    updateShoppingList(updatedTasks);
+    setFilteredTasks(newFilteredTasks); // Ensures UI doesn't try to render completed tasks
+  }, 100);
+};
+
+  return (
+    <FlatList
+      data={filteredTasks}
+      renderItem={({ item }) => {
+        if (!item) return null; // ✅ Prevent accessing deleted items
+
+        const taskPreview = item.name.split(" ").slice(0, 2).join(" ");
+        const countdown = taskTimers[item.id] ?? "Calculating...";
+
+        return (
+          <View style={styles.listItem}>
+            <Text style={styles.taskPreview}>{taskPreview}</Text>
+            <Text style={styles.timerText}>{item.buff}</Text>
+            <Text style={styles.timerText}>{countdown}</Text>
+            <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.button}>
+              <Text style={styles.buttonText}>Mark Complete</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      }}
+      ListEmptyComponent={
+        <View style={styles.listEmptyContainer}>
+          <Text style={styles.emptyText}>No pending tasks!</Text>
+        </View>
+      }
+    />
+  );
 }
 
 // Styles
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colorWhite, gap:10 },
-    text: { fontSize: 24 },
-    button: { backgroundColor: theme.colorBlack, padding: 12, borderRadius: 6 },
-    buttonComplete: { backgroundColor: theme.colorGreen, padding: 12, borderRadius: 6 },
-    buttonText: { color: "#fff", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1 },
-    row: { flexDirection: 'row', marginBottom: 24 },
-    heading: { fontSize: 24, fontWeight: "600", marginBottom: 24, color: theme.colorBlack },
-    containerLate: { backgroundColor: theme.colorRed },
-    whiteText: { color: theme.colorWhite },
+  listItem: { padding: 16, borderRadius: 8, marginBottom: 12, alignItems: "center", backgroundColor: theme.colorLightGrey },
+  taskPreview: { fontSize: 18, fontWeight: "bold" },
+  timerText: { fontSize: 16 },
+  button: { backgroundColor: theme.colorGreen, padding: 10, borderRadius: 6, marginTop: 8 },
+  buttonText: { color: "#fff", fontWeight: "bold" },
+  listEmptyContainer: { alignItems: "center", justifyContent: "center", marginVertical: 18 },
+  emptyText: { fontSize: 18, color: theme.colorGrey },
 });
+

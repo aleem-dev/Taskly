@@ -14,9 +14,10 @@ export default function HistoryScreen() {
 
   return (
     <FlatList
-      data={shoppingList}
+      data={orderShoppingList(shoppingList)}
       renderItem={({ item }) => {
-        const timestamp = getTimestamp(item);
+        // const timestamp = getTimestamp(item);
+        const timestamp = item.lastUpdatedTimestamp;
         const formattedDate = timestamp ? format(new Date(timestamp), "LLL d yyyy, h:mm aaa") : "Unknown Date";
 
         return (
@@ -25,6 +26,9 @@ export default function HistoryScreen() {
             <Text style={styles.eventText}>
               {item.eventType.toUpperCase()} - {formattedDate}
             </Text>
+            {/* <Text style={styles.eventText}>
+              {item.buff}
+            </Text> */}
           </View>
         );
       }}
@@ -35,6 +39,27 @@ export default function HistoryScreen() {
       }
     />
   );
+}
+
+const orderShoppingList = (shoppingList:ShoppingListItemType[]) => {
+  // const filteredShoppingList = shoppingList.filter(item => item.eventType !== "deleted")
+  return shoppingList.sort((item1,item2)=>{
+    
+      if(item1.lastUpdatedTimestamp && item2.lastUpdatedTimestamp){
+        return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp
+      }
+      if(item1.lastUpdatedTimestamp && !item2.lastUpdatedTimestamp){
+        return 1
+      }
+      if(!item1.lastUpdatedTimestamp && item2.lastUpdatedTimestamp){
+        return -1
+      }
+      if(!item1.lastUpdatedTimestamp && !item2.lastUpdatedTimestamp){
+        return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp
+      }
+      return 0
+    }
+  )
 }
 
 const styles = StyleSheet.create({
