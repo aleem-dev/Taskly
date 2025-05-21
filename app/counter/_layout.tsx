@@ -2,9 +2,11 @@ import { Link, Stack } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { theme } from "../../theme";
 import { Pressable } from "react-native";
+import ShoppingListProvider from '@/context/ShoppingListContext';
 
 export default function Layout() {
    return (
+    // <ShoppingListProvider>
      <Stack>
 {/* -      <Stack.Screen name="index" options={{ title: "Counter" }} /> */}
       <Stack.Screen
@@ -28,5 +30,6 @@ export default function Layout() {
       />
        <Stack.Screen name="history" options={{ title: "History" }} />
      </Stack>
+    //  </ShoppingListProvider>
    );
 }

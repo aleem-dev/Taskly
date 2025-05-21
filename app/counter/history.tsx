@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { ShoppingListContext } from "@/app/context/ShoppingListContext";
 import { format } from "date-fns";
 import { FlatList, View, Text, StyleSheet } from "react-native";
 import { theme } from "@/theme";
+import { ShoppingListContext } from "@/context/ShoppingListContext";
 
 export default function HistoryScreen() {
   const { shoppingList } = useContext(ShoppingListContext);

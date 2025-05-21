@@ -7,9 +7,9 @@ import { ShoppingListItemType } from '@/constants/projTypes';
 import {getFromStorage, saveToStorage} from '@/utils/storage';
 import * as Haptics from 'expo-haptics'
 import { useContext } from 'react';
-import { ShoppingListContext } from '@/app/context/ShoppingListContext';
 import * as Notifications from "expo-notifications"
 import { Platform } from 'react-native';
+import { ShoppingListContext } from '@/context/ShoppingListContext';
 
 export const storageKey = "shopping-list"
 

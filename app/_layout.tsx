@@ -7,7 +7,7 @@ import { withLayoutContext } from 'expo-router';
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 import {Tabs} from 'expo-router' // comment this as we are going to cretae our Tab
 // import {Tabs} from '@/components/bottom-tabs'
-import  ShoppingListProvider  from '@/app/context/ShoppingListContext';
+import ShoppingListProvider from '@/context/ShoppingListContext';
 
 export default function Layout(){
   // const Tabs = withLayoutContext(

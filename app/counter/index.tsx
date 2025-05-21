@@ -476,7 +476,7 @@ import { FlatList, View, Text, TouchableOpacity, StyleSheet, LayoutAnimation } f
 import { differenceInSeconds, isBefore } from "date-fns";
 import * as Haptics from "expo-haptics";
 import { theme } from "@/theme";
-import { ShoppingListContext } from "@/app/context/ShoppingListContext";
+import { ShoppingListContext } from "../../context/ShoppingListContext"
 
 // Constants
 const COUNTDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
